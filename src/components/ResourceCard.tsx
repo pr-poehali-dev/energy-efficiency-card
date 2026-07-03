@@ -2,21 +2,23 @@ import Icon from '@/components/ui/icon';
 import { Switch } from '@/components/ui/switch';
 import ClassBadge from '@/components/ClassBadge';
 import ClassScale from '@/components/ClassScale';
-import { Resource, getClass, plannedFact, ratioOf } from '@/lib/energy';
+import { Resource, getClass, plannedFact, ratioOf, reductionPotential } from '@/lib/energy';
 
 interface Props {
   resource: Resource;
   onToggleMeasure: (resourceId: string, measureId: string) => void;
+  onOpenCalc: (resource: Resource) => void;
   delay: number;
 }
 
-export default function ResourceCard({ resource, onToggleMeasure, delay }: Props) {
+export default function ResourceCard({ resource, onToggleMeasure, onOpenCalc, delay }: Props) {
   const factClass = getClass(ratioOf(resource.fact, resource.baseline));
   const planned = plannedFact(resource);
   const plannedClass = getClass(ratioOf(planned, resource.baseline));
   const hasActive = resource.measures.some((m) => m.enabled);
   const improved = plannedClass.label !== factClass.label;
   const savePct = Math.round((1 - planned / resource.fact) * 100);
+  const potential = reductionPotential(resource);
 
   const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU');
 
@@ -27,15 +29,23 @@ export default function ResourceCard({ resource, onToggleMeasure, delay }: Props
     >
       <div className="flex items-start justify-between gap-4 mb-5">
         <div className="flex items-center gap-3">
-          <div
-            className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0"
+          <button
+            onClick={() => onOpenCalc(resource)}
+            title="Открыть расчёт: Факт и План"
+            className="group relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0 transition-transform hover:scale-105"
             style={{ background: `${resource.accent}1f`, border: `1px solid ${resource.accent}40` }}
           >
             <Icon name={resource.icon} size={24} style={{ color: resource.accent }} />
-          </div>
+            <span className="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm">
+              <Icon name="Search" size={11} />
+            </span>
+          </button>
           <div>
             <h3 className="font-display font-semibold text-lg leading-tight">{resource.name}</h3>
-            <p className="text-xs text-muted-foreground">Норматив: {fmt(resource.baseline)} {resource.unit}</p>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <Icon name="TrendingDown" size={12} className="text-primary" />
+              Потенциал снижения: <span className="font-semibold text-primary">{potential}%</span>
+            </p>
           </div>
         </div>
         <div className="flex flex-col items-center gap-1">

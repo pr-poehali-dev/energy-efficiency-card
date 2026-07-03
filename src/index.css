@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 225 40% 6%;
-    --foreground: 200 30% 96%;
+    --background: 210 60% 98%;
+    --foreground: 215 40% 20%;
 
-    --card: 224 38% 9%;
-    --card-foreground: 200 30% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 40% 20%;
 
-    --popover: 224 38% 9%;
-    --popover-foreground: 200 30% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 40% 20%;
 
-    --primary: 152 76% 50%;
-    --primary-foreground: 225 40% 6%;
+    --primary: 205 85% 48%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 30% 15%;
-    --secondary-foreground: 200 30% 96%;
+    --secondary: 210 45% 95%;
+    --secondary-foreground: 215 40% 25%;
 
-    --muted: 222 25% 16%;
-    --muted-foreground: 215 18% 62%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 20% 50%;
 
-    --accent: 175 80% 48%;
-    --accent-foreground: 225 40% 6%;
+    --accent: 190 80% 45%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 25% 18%;
-    --input: 222 25% 18%;
-    --ring: 152 76% 50%;
+    --border: 210 35% 88%;
+    --input: 210 35% 88%;
+    --ring: 205 85% 48%;
 
     --radius: 0.9rem;
 
@@ -100,12 +100,12 @@
     background-image:
       radial-gradient(
         ellipse 80% 50% at 20% -10%,
-        hsl(152 76% 50% / 0.12),
+        hsl(205 85% 48% / 0.1),
         transparent
       ),
       radial-gradient(
         ellipse 60% 50% at 90% 10%,
-        hsl(175 80% 48% / 0.1),
+        hsl(190 80% 45% / 0.08),
         transparent
       );
     background-attachment: fixed;
@@ -114,15 +114,15 @@
 
 @layer components {
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-white/5;
+    @apply bg-card/80 backdrop-blur-xl border border-border shadow-sm;
   }
   .neon-text {
-    text-shadow: 0 0 24px hsl(var(--primary) / 0.5);
+    text-shadow: 0 2px 20px hsl(var(--primary) / 0.2);
   }
   .grid-bg {
     background-image:
-      linear-gradient(hsl(var(--border) / 0.4) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--border) / 0.4) 1px, transparent 1px);
+      linear-gradient(hsl(var(--primary) / 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary) / 0.06) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 }

@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import Icon from '@/components/ui/icon';
 import ResourceCard from '@/components/ResourceCard';
 import ClassBadge from '@/components/ClassBadge';
+import CalcModal from '@/components/CalcModal';
 import {
   INITIAL_RESOURCES, Resource, getClass, plannedFact, ratioOf,
   classIndex, CLASS_SCALE,
@@ -9,6 +10,8 @@ import {
 
 export default function Index() {
   const [resources, setResources] = useState<Resource[]>(INITIAL_RESOURCES);
+  const [calcResourceId, setCalcResourceId] = useState<string | null>(null);
+  const calcResource = resources.find((r) => r.id === calcResourceId) ?? null;
 
   const toggleMeasure = (resourceId: string, measureId: string) => {
     setResources((prev) =>
@@ -106,10 +109,18 @@ export default function Index() {
         </div>
         <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
           {resources.map((r, i) => (
-            <ResourceCard key={r.id} resource={r} onToggleMeasure={toggleMeasure} delay={i * 90} />
+            <ResourceCard
+              key={r.id}
+              resource={r}
+              onToggleMeasure={toggleMeasure}
+              onOpenCalc={(res) => setCalcResourceId(res.id)}
+              delay={i * 90}
+            />
           ))}
         </div>
       </main>
+
+      <CalcModal resource={calcResource} onClose={() => setCalcResourceId(null)} />
 
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         Классы энергосбережения по международной шкале · A++ (наивысший) … G (низший)

@@ -59,6 +59,12 @@ export function ratioOf(consumption: number, baseline: number): number {
   return baseline > 0 ? consumption / baseline : 999;
 }
 
+// Полный потенциал снижения (если включить ВСЕ мероприятия ресурса), в %
+export function reductionPotential(r: Resource): number {
+  const factor = r.measures.reduce((acc, m) => acc * (1 - m.reduction / 100), 1);
+  return Math.round((1 - factor) * 100);
+}
+
 export const INITIAL_RESOURCES: Resource[] = [
   {
     id: 'hvs', name: 'Холодное водоснабжение', icon: 'Droplet', unit: 'м³/год', accent: '#38bdf8',
