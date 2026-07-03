@@ -7,11 +7,12 @@ import { Resource, getClass, plannedFact, ratioOf, reductionPotential } from '@/
 interface Props {
   resource: Resource;
   onToggleMeasure: (resourceId: string, measureId: string) => void;
+  onToggleConfirm: (resourceId: string, measureId: string) => void;
   onOpenCalc: (resource: Resource) => void;
   delay: number;
 }
 
-export default function ResourceCard({ resource, onToggleMeasure, onOpenCalc, delay }: Props) {
+export default function ResourceCard({ resource, onToggleMeasure, onToggleConfirm, onOpenCalc, delay }: Props) {
   const factClass = getClass(ratioOf(resource.fact, resource.baseline));
   const planned = plannedFact(resource);
   const plannedClass = getClass(ratioOf(planned, resource.baseline));
@@ -85,9 +86,9 @@ export default function ResourceCard({ resource, onToggleMeasure, onOpenCalc, de
         </p>
         <div className="space-y-2">
           {resource.measures.map((m) => (
-            <label
+            <div
               key={m.id}
-              className="flex items-center justify-between gap-3 rounded-lg bg-secondary/40 hover:bg-secondary/70 px-3 py-2.5 cursor-pointer transition-colors"
+              className="flex items-center justify-between gap-3 rounded-lg bg-secondary/40 hover:bg-secondary/70 px-3 py-2.5 transition-colors"
             >
               <div className="flex items-center gap-2 min-w-0">
                 <span
@@ -97,9 +98,31 @@ export default function ResourceCard({ resource, onToggleMeasure, onOpenCalc, de
                   −{m.reduction}%
                 </span>
                 <span className="text-sm truncate">{m.title}</span>
+                {m.confirmed && (
+                  <span
+                    className="flex items-center gap-0.5 text-[10px] font-medium shrink-0 rounded-md px-1.5 py-0.5"
+                    style={{ background: 'hsl(160 70% 40% / 0.15)', color: 'hsl(160 70% 32%)' }}
+                    title="Мероприятие подтверждено"
+                  >
+                    <Icon name="BadgeCheck" size={11} /> подтв.
+                  </span>
+                )}
               </div>
-              <Switch checked={m.enabled} onCheckedChange={() => onToggleMeasure(resource.id, m.id)} />
-            </label>
+              <div className="flex items-center gap-3 shrink-0">
+                <button
+                  onClick={() => onToggleConfirm(resource.id, m.id)}
+                  title="Подтвердить мероприятие"
+                  className="transition-colors"
+                >
+                  <Icon
+                    name="BadgeCheck"
+                    size={18}
+                    style={{ color: m.confirmed ? 'hsl(160 70% 40%)' : 'hsl(var(--muted-foreground) / 0.4)' }}
+                  />
+                </button>
+                <Switch checked={m.enabled} onCheckedChange={() => onToggleMeasure(resource.id, m.id)} />
+              </div>
+            </div>
           ))}
         </div>
       </div>

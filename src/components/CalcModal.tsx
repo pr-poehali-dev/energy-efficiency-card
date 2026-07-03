@@ -1,6 +1,6 @@
 import Icon from '@/components/ui/icon';
 import ClassBadge from '@/components/ClassBadge';
-import { Resource, getClass, plannedFact, ratioOf } from '@/lib/energy';
+import { Resource, getClass, plannedFact, ratioOf, calcHeat425 } from '@/lib/energy';
 
 interface Props {
   resource: Resource | null;
@@ -30,6 +30,10 @@ export default function CalcModal({ resource, onClose }: Props) {
     { code: '3', label: 'Удельное отклонение от норматива', unit: '%', fact: `${factDev > 0 ? '+' : ''}${fmt2(factDev)}`, plan: `${planDev > 0 ? '+' : ''}${fmt2(planDev)}` },
     { code: '4', label: 'Экономия ресурса за счёт мероприятий', unit: '%', fact: '—', plan: `−${fmt2(savePct)}` },
   ];
+
+  const h = r.heat425;
+  const heatFact = h ? calcHeat425(r.fact, h.area, h) : null;
+  const heatPlan = h ? calcHeat425(planned, h.area, h) : null;
 
   return (
     <div
@@ -76,6 +80,59 @@ export default function CalcModal({ resource, onClose }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Расчёт по методике приказа №425 (тепловая энергия) */}
+        {h && heatFact && heatPlan && (
+          <div className="px-6 pb-2">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2 flex items-center gap-1.5">
+              <Icon name="FileCheck2" size={13} /> Расчёт по приказу Минэкономразвития №425 от 15.07.2020
+            </p>
+            <div className="rounded-xl border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="bg-secondary/60 text-left">
+                    <th className="px-3 py-2 font-medium text-muted-foreground w-10">п.</th>
+                    <th className="px-3 py-2 font-medium text-muted-foreground">Показатель</th>
+                    <th className="px-3 py-2 font-medium text-muted-foreground text-right w-28">Факт</th>
+                    <th className="px-3 py-2 font-medium text-primary text-right w-28">План</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr className="border-t border-border">
+                    <td className="px-3 py-2.5 text-muted-foreground">7.1</td>
+                    <td className="px-3 py-2.5">Удельный годовой расход на отопление, Гкал/м²</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{fmt2(heatFact.qRaw)}</td>
+                    <td className="px-3 py-2.5 text-right text-primary font-semibold tabular-nums">{fmt2(heatPlan.qRaw)}</td>
+                  </tr>
+                  <tr className="border-t border-border bg-primary/5">
+                    <td className="px-3 py-2.5 text-muted-foreground">7.2</td>
+                    <td className="px-3 py-2.5">
+                      Приведённый к климату (ГСОП)
+                      <div className="text-[11px] text-muted-foreground">ГСОП: {fmt(h.gsopFact)} / базовый {fmt(h.gsopBase)}</div>
+                    </td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{fmt2(heatFact.qGsop)}</td>
+                    <td className="px-3 py-2.5 text-right text-primary font-semibold tabular-nums">{fmt2(heatPlan.qGsop)}</td>
+                  </tr>
+                  <tr className="border-t border-border">
+                    <td className="px-3 py-2.5 text-muted-foreground">7.3</td>
+                    <td className="px-3 py-2.5">
+                      Приведённый к этажности и режиму работы
+                      <div className="text-[11px] text-muted-foreground">Коэффициент этажности: {fmt2(h.floorsCoefficient)}</div>
+                    </td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{fmt2(heatFact.qFloors)}</td>
+                    <td className="px-3 py-2.5 text-right text-primary font-semibold tabular-nums">{fmt2(heatPlan.qFloors)}</td>
+                  </tr>
+                  <tr className="border-t border-border">
+                    <td className="px-3 py-2.5 text-muted-foreground">7.5</td>
+                    <td className="px-3 py-2.5">Отклонение от норматива, %</td>
+                    <td className="px-3 py-2.5 text-right tabular-nums">{fmt2(heatFact.deviation)}</td>
+                    <td className="px-3 py-2.5 text-right text-primary font-semibold tabular-nums">{fmt2(heatPlan.deviation)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
         {/* Таблица показателей */}
         <div className="px-6 pb-2">

@@ -23,16 +23,28 @@ export default function Index() {
     );
   };
 
+  const toggleConfirm = (resourceId: string, measureId: string) => {
+    setResources((prev) =>
+      prev.map((r) =>
+        r.id === resourceId
+          ? { ...r, measures: r.measures.map((m) => (m.id === measureId ? { ...m, confirmed: !m.confirmed } : m)) }
+          : r,
+      ),
+    );
+  };
+
   const summary = useMemo(() => {
     const factIdx = resources.map((r) => classIndex(getClass(ratioOf(r.fact, r.baseline)).label));
     const planIdx = resources.map((r) => classIndex(getClass(ratioOf(plannedFact(r), r.baseline)).label));
     const avgFact = Math.round(factIdx.reduce((a, b) => a + b, 0) / resources.length);
     const avgPlan = Math.round(planIdx.reduce((a, b) => a + b, 0) / resources.length);
     const activeCount = resources.reduce((a, r) => a + r.measures.filter((m) => m.enabled).length, 0);
+    const confirmedCount = resources.reduce((a, r) => a + r.measures.filter((m) => m.confirmed).length, 0);
     return {
       factClass: CLASS_SCALE[avgFact],
       planClass: CLASS_SCALE[avgPlan],
       activeCount,
+      confirmedCount,
       improved: avgPlan < avgFact,
     };
   }, [resources]);
@@ -83,10 +95,11 @@ export default function Index() {
           </div>
 
           {/* Метрики */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-8">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-8">
             {[
               { icon: 'Boxes', label: 'Ресурсов', value: String(resources.length) },
               { icon: 'CheckCircle2', label: 'Мероприятий активно', value: String(summary.activeCount) },
+              { icon: 'BadgeCheck', label: 'Мероприятия подтверждены', value: String(summary.confirmedCount) },
               { icon: 'Scale', label: 'Шкала классов', value: 'A++ … G' },
               { icon: 'Activity', label: 'Расчёт', value: 'в реальном времени' },
             ].map((m, i) => (
@@ -113,6 +126,7 @@ export default function Index() {
               key={r.id}
               resource={r}
               onToggleMeasure={toggleMeasure}
+              onToggleConfirm={toggleConfirm}
               onOpenCalc={(res) => setCalcResourceId(res.id)}
               delay={i * 90}
             />
